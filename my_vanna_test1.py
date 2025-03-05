@@ -1,14 +1,24 @@
-from vanna import VannaDB_VectorStore, VannaBase
-
+from vanna.vannadb import VannaDB_VectorStore
+from vanna.base import VannaBase
+from vanna.flask import VannaFlaskApp
 # 自定义 LLM 类
 class MyCustomLLM(VannaBase):
-    def __init__(self, config=None):
-        super().__init__(config=config)
-        # 可以添加你自己的 LLM 初始化代码
+  def __init__(self, config=None):
+    super().__init__(config=config)
 
-    def submit_prompt(self, prompt, **kwargs) -> str:
-        # 这里要处理向 LLM 提交请求的逻辑
-        return "这是你的 LLM 响应"
+  def submit_prompt(self, prompt, **kwargs) -> str:
+    # 這是用來提交提示的邏輯
+    return "這是LLM生成的回答"
+
+  # 添加必須的抽象方法實現
+  def assistant_message(self, message: str) -> str:
+    return f"Assistant: {message}"
+
+  def system_message(self, message: str) -> str:
+    return f"System: {message}"
+
+  def user_message(self, message: str) -> str:
+    return f"User: {message}"
 
 # 初始化 Vanna 类，继承 VannaDB_VectorStore 和自定义的 MyCustomLLM 类
 class MyVanna(VannaDB_VectorStore, MyCustomLLM):
@@ -34,3 +44,6 @@ vn.connect_to_postgres(
 query = "Show me all users"
 result = vn.ask(question=query)  # 使用 vanna.ask() 提交自然语言查询
 print(result) 
+
+app = VannaFlaskApp(vn)
+app.run()
